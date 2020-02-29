@@ -1,79 +1,81 @@
-import React, { Component } from 'react';
-import axios  from 'axios';
+import React, { useState, useEffect } from "react";
+import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
 
-export default class Planets extends Component{   
-  state = {
-    planets: [],
-    indice: 1
-  }
-  
-  nextPage() {
-    axios.get(`https://swapi.co/api/planets/${this.state.indice}/`)
-        .then(res => {
-          const planets = res.data;
-          this.setState({
-            planets: planets,
-            indice: ++this.state.indice 
-          })
-        })
+export default function App() {
+  const [planets, setplanets] = useState([]);
+  const [indice, setIndice] = useState(1);
+
+  const classes = {
+    html: {
+      backgroundColor: "#fff5f1"
+    },
+    card: {
+      borderStyle: "inset",
+      width: "27%",
+      margin: "15% 30%",
+      backgroundColor: "#fff5f1",
+      height: "270px"
+    },
+    text: {
+      textAlign: "center",
+      marginTop: "15%",
+      fontFamily: "Courier New"
+    },
+    button: {
+      textAlign: "center",
+      marginTop: "18%",
+      fontFamily: "Courier New"
+    },
+    root: {
+      backgroundColor: "#fff5f1"
     }
-    previewPage() {
-      axios.get(`https://swapi.co/api/planets/${this.state.indice}/`)
-          .then(res => {
-            if(this.state.indice === 0) {
-              alert("last page bro")
-              return;
-            }
-            const planets = res.data;
-            this.setState({
-              planets: planets,
-              indice: --this.state.indice 
-            })
-          })
-      }
-    onClick = (indice) => {
-      this.setState({ indice : this.state.indice});
-      if(indice.target.className === 'next') {          
-        this.nextPage()
-      }
-      if(indice.target.className === 'preview') {
-          this.previewPage()
-      }
-   }
+  };
+  useEffect(() => {
+    async function getplanets() {
+      const response = await fetch(`https://swapi.co/api/planets/${indice}`);
+      const data = await response.json();
+      setplanets(data);
+    }
+    getplanets();
+  }, [planets]);
 
-    render() {
-      const mystyle = {
-        textAlign: "center",
-        padding: "200px",
-        backgroundColor: "#bcbfa2"
-      };
-      const quadro = {
-        border: "3px solid black",
-        borderStyle: "inset",
-        width: "30%",
-        margin: "0 auto"
-      }
-        const planeta = this.state.planets;
-      return (
-        <div  style={mystyle}>
-            <div style={quadro}>
-             <h1>Nome: { planeta.name}</h1>
-                <h3>Clima: { planeta.climate}
-                <br/>
-                c
-                    Terrain: { planeta.terrain}
-                <br/>
-                    Populacao: { planeta.population}
-                </h3>
-        
-         <button onClick={this.onClick} className="preview">preview</button>
-         <button onClick={this.onClick}className="next">next</button>
-
-         </div>
+  return (
+    <div style={classes.card}>
+      <div style={classes.text}>
+        <div>
+          <Grid>
+            <h1 style={{  borderBottom: "1px solid"}}>{planets.name}</h1>
+          </Grid>
         </div>
-      )
-      
-    }
-    
-  }
 
+        <h3>
+          Climate: {planets.climate}
+          <br />
+          Terrain: {planets.terrain}
+          <br />
+          Population: {planets.population}
+        </h3>
+      </div>
+      <div style={classes.button}>
+        <Button
+          size="small"
+          variant="text"
+          color="primary"
+          disabled={!indice}
+          onClick={() => setIndice(prevCount => prevCount - 1)}
+        >
+          preview
+        </Button>
+        <Button
+          size="small"
+          variant="text"
+          color="primary"
+          onClick={() => setIndice(nextCount => nextCount + 1)}
+        >
+          next
+        </Button>
+      </div>
+    </div>
+  );
+}
